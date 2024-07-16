@@ -5,16 +5,12 @@ using RabbitMQ.Client.Events;
 
 namespace Order.Infra
 {
-    public class RabbitMq : IQueue
+    public class RabbitMq : BackgroundService,  IQueue
     {
         private readonly string FILA_CREATE_ORDER = "create_order";
-        private readonly string HOST = "172.17.0.2";
+        private readonly string HOST = "localhost";
         private readonly IModel _channel;
-        public RabbitMq()
-        {
-            Consumer();
-        }
-        public void Consumer()
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var factory = new ConnectionFactory { HostName = HOST };
             using var connection = factory.CreateConnection();
@@ -38,6 +34,10 @@ namespace Order.Infra
             channel.BasicConsume(queue: FILA_CREATE_ORDER,
                                 autoAck: true,
                                 consumer: consumer);
+        }
+        public void Consumer()
+        {
+            
         }
 
         public void Publish(string message)
